@@ -1,7 +1,9 @@
 from twisted.internet import reactor
-from pprint import pprint
 from autobahn.twisted.websocket import WebSocketServerFactory, \
     WebSocketServerProtocol
+
+from tws_game.lobby import Lobby
+from pprint import pprint
 
 import json
 
@@ -37,10 +39,24 @@ class TwsServerFactory(WebSocketServerFactory):
             print("unregistered client {}".format(client.peer))
             self.clients.remove(client)
 
+    """ Message encode/decode functionality """
+
+    def encode_message(self, command, data):
+        return '|'.join([command, json.dumps(data)])
+
+    def decode_message(self, message):
+        command, data = message.split('|', 1)
+        data = json.loads(data)
+
+        return command, data
+
     """ Basic game commands """
 
     def create_lobby(self, client, data):
-        pass
+        lobby = Lobby()
+        lobby.add_client(client)
+
+        client.sendMessage()
 
     def join_lobby(self, client, data):
         pass
@@ -60,9 +76,8 @@ class TwsServerFactory(WebSocketServerFactory):
         pprint(data)
 
     def command(self, client, msg):
-        command, data = msg.split('|', 1)
 
-        data = json.loads(data)
+        command, data = self.decode_message(msg)
 
         commands = {
             'create_lobby': self.create_lobby,
