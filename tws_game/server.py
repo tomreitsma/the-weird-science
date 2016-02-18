@@ -1,8 +1,9 @@
-from twisted.internet import reactor
 from autobahn.twisted.websocket import WebSocketServerFactory, \
     WebSocketServerProtocol
 
 from tws_game.lobby import Lobby
+from tws_game.tetris import Tetris
+
 from pprint import pprint
 
 import json
@@ -23,6 +24,10 @@ class TwsServerProtocol(WebSocketServerProtocol):
 
 
 class TwsServerFactory(WebSocketServerFactory):
+
+    AVAILABLE_GAMES = {
+        'TETRIS': Tetris
+    }
 
     def __init__(self, url):
         WebSocketServerFactory.__init__(self, url)
@@ -53,10 +58,17 @@ class TwsServerFactory(WebSocketServerFactory):
     """ Basic game commands """
 
     def create_lobby(self, client, data):
-        lobby = Lobby()
+
+        if not data.has_key('game') and data['game'] in self.AVAILABLE_GAMES:
+            raise Exception('Game unavailable')
+
+        lobby = Lobby(self.AVAILABLE_GAMES[data['game']])
+        lobby.set_factory(self)
         lobby.add_client(client)
 
-        client.sendMessage()
+        self.send_command(client, 'lobby_created', {
+            'id': lobby.id
+        })
 
     def join_lobby(self, client, data):
         pass
@@ -68,12 +80,22 @@ class TwsServerFactory(WebSocketServerFactory):
         pass
 
     def start_game(self, client, data):
-        pass
+        client.lobby.start_game(client)
 
     def set_nickname(self, client, data):
         print "Setting nickname"
 
         pprint(data)
+
+    def send_command(self, client, command, data):
+        msg = self.encode_message(command, data)
+
+        print "Sending command "
+        print msg
+
+        client.sendMessage(
+            msg
+        )
 
     def command(self, client, msg):
 
@@ -89,4 +111,7 @@ class TwsServerFactory(WebSocketServerFactory):
         }
 
         if command in commands:
+            print "Executing command %s" % (command,)
             commands[command](client, data)
+        else:
+            print "Unrecognized command %s" % (command,)

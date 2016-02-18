@@ -1,7 +1,5 @@
-define( ['vendor/jquery', 'vendor/promise', 'lib/socket', 'lib/StateMachine'],
-function ($, Promise, Socket, StateMachine) {
-
-    console.dir({s: Socket});
+define( ['vendor/jquery', 'lib/socket', 'lib/StateMachine', 'game/games/tetris'],
+function ($, Socket, StateMachine, GameTetris) {
 
     var GameHandler = function() {
         this.init();
@@ -11,24 +9,47 @@ function ($, Promise, Socket, StateMachine) {
         init: function() {
             var self = this;
 
+            self.game = GameTetris;
 
+            self.connectBackend().then(function(socket) {
+                self.socket = socket;
+
+                self.socket.send('create_lobby', {
+                    name:'TestLobby',
+                    game:'TETRIS'
+                });
+
+                self.startGame();
+            });
+        },
+
+        startGame: function() {
+            self.socket.send('start_game', {});
+        },
+
+        messageReceived: function(data) {
+            console.dir({received_message_data: data});
         },
 
         connectBackend: function() {
+            var self = this;
 
+            return new Promise(function(resolve, reject) {
+                var socket = new Socket('ws://localhost:9000/');
+
+                socket.on('open', function() {
+                    console.log('Open function called');
+                    socket.send('set_nickname', {name: 'Tom'});
+
+                    resolve(socket);
+                });
+
+                socket.on('message', function(data) {
+                    self.messageReceived(data);
+                });
+            });
         },
     };
 
-    var socket = new Socket('ws://localhost:9000/');
-
-    socket.on('open', function() {
-        console.log('Open function called');
-        socket.send('set_nickname', {name: 'Tom'});
-
-        socket.send('list_games', {});
-    });
-
-    socket.on('message', function(event) {
-        console.log('Message received: ' + event.data);
-    });
+    return new GameHandler();
 });

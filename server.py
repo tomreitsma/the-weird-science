@@ -7,7 +7,7 @@ from twisted.web.static import File
 
 from autobahn.twisted.websocket import listenWS
 
-from tws_game.server_files import TwsServerFactory, TwsServerProtocol
+from tws_game.server import TwsServerFactory, TwsServerProtocol
 
 
 if __name__ == '__main__':
