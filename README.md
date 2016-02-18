@@ -1,6 +1,6 @@
 # The Weird Science
 
-A simple multiplayer Tetris clone build in Javascript and Python
+A simple multiplayer Tetris clone built in Javascript and Python
 
 ### Setup instructions
 
