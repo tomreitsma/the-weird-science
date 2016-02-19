@@ -4,7 +4,17 @@
     <meta charset="UTF-8">
     <title>The Weird Tetris</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/3.1.2/es6-promise.min.js"></script>
-    <script data-main="js/main" src="js/vendor/require.js"></script>
+    <script src="js/vendor/require.js"></script>
+    <script>
+        requirejs.config({
+            "baseUrl": "js/",
+            "paths": {
+              "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min"
+            }
+        });
+
+        requirejs(["main"]);
+    </script>
 </head>
 <body></body>
 

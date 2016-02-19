@@ -27,6 +27,10 @@ function ($, Socket, StateMachine, GameTetris) {
             var self = this;
             console.dir({wut: self});
 
+            self._game_instance = new self.game({socket: self.socket});
+
+            console.dir({haha:self._game_instance});
+
             self.socket.send('start_game', {});
         },
 

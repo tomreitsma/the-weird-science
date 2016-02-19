@@ -4,7 +4,8 @@ from tws_game.base_classes import BaseGame
 from pieces import *
 from pprint import pprint
 
-import time, random
+import time
+import random
 
 
 GAME_STATE_NOT_STARTED = 0
@@ -52,11 +53,10 @@ class Tetris(BaseGame):
                 }
             )
 
-        #reactor.callLater(1, self.heartbeat)
+        # reactor.callLater(1, self.heartbeat)
 
     def _reset_playfield(self):
         self.playfield = [[0 for x in range(self.field_size[0])] for y in range(self.field_size[1])]
-
         pprint(self.playfield)
 
     def _get_random_piece(self):
@@ -73,12 +73,12 @@ class Tetris(BaseGame):
         for client in self.lobby.clients:
             piece = client.current_piece
 
-            for x in range(0, piece.square_size):
-                for y in range(0, piece.square_size):
-                    if piece.current_rotation()[x][y] == 1:
+            for y in range(0, piece.square_size):
+                for x in range(0, piece.square_size):
+                    if piece.current_rotation()[y][x] == 1:
                         new_x = piece.offset_left + x
                         new_y = piece.offset_top + y
-                        self.playfield[new_x][new_y] = 1
+                        self.playfield[new_y][new_x] = 1
 
     def _render_board(self):
         pprint(self.playfield)
@@ -89,10 +89,18 @@ class Tetris(BaseGame):
             if not client.current_piece:
                 client.current_piece = self._get_random_piece()
 
+            client.current_piece.offset_top += 1
             client.current_piece.rotate()
 
         self._update_field()
         self._render_board()
+
+        for client in self.lobby.clients:
+            self.lobby.factory.send_command(
+                client,
+                'update_board',
+                self.playfield
+            )
 
         reactor.callLater(1, self._gameplay_tick)
 

@@ -5,6 +5,8 @@ define(function () {
     };
 
     SocketHandler.prototype = {
+        _listeners: {},
+
         _on: {
             'open': function(){ console.warn("on('open', func(){}) not defined"); },
             'close': function(){ console.warn("on('close', func(){}) not defined"); },
@@ -57,14 +59,29 @@ define(function () {
             var self = this,
                 msg = event.data.split(/\|(.+)?/);
 
-            console.dir({received_message: msg});
-
             var result = {
                 command: msg[0],
                 data: JSON.parse(msg[1])
             }
 
+            if(self._listeners[result.command]) {
+                for(var i=0; i<self._listeners[result.command].length; i++) {
+                    console.dir({calling:true});
+                    self._listeners[result.command][i](result.data);
+                }
+            }
+
             self._on['message'](result);
+        },
+
+        listen: function(command, func) {
+            var self = this;
+
+            if(!self._listeners[command]) {
+                self._listeners[command] = [];
+            }
+
+            self._listeners[command].push(func);
         },
 
         /**
