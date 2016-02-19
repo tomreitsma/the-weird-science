@@ -1,6 +1,5 @@
-class BasePiece:
-    def __init__(self):
-        pass
+class BasePiece(object):
+    pass
 
 
 class PieceI(BasePiece):
