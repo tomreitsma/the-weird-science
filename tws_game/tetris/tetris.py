@@ -1,5 +1,5 @@
 from twisted.internet import reactor
-from base_classes import BaseGame
+from tws_game.base_classes import BaseGame
 
 import time
 
@@ -19,6 +19,8 @@ class Tetris(BaseGame):
     max_players = 2
     GAME_STATE = None
 
+    state_data = {}
+
     def __init__(self, lobby):
         BaseGame.__init__(self)
 
@@ -37,5 +39,8 @@ class Tetris(BaseGame):
         self.clients.append(client)
 
     def start(self, client):
+
+        self.state_data
+
         self.GAME_STATE = GAME_STATE_STARTED
         print "Game started by client %s" % client

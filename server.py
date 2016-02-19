@@ -7,7 +7,7 @@ from twisted.web.static import File
 
 from autobahn.twisted.websocket import listenWS
 
-from tws_game.server import TwsServerFactory, TwsServerProtocol
+from tws_game.server import TwsServerFactory, ClientConnection
 
 
 if __name__ == '__main__':
@@ -17,7 +17,7 @@ if __name__ == '__main__':
     ServerFactory = TwsServerFactory
 
     factory = ServerFactory(u"ws://127.0.0.1:9000")
-    factory.protocol = TwsServerProtocol
+    factory.protocol = ClientConnection
     listenWS(factory)
 
     webdir = File("public")

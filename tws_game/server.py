@@ -9,7 +9,7 @@ from pprint import pprint
 import json
 
 
-class TwsServerProtocol(WebSocketServerProtocol):
+class ClientConnection(WebSocketServerProtocol):
 
     def onOpen(self):
         self.factory.register(self)

@@ -15,8 +15,8 @@ function ($, Socket, StateMachine, GameTetris) {
                 self.socket = socket;
 
                 self.socket.send('create_lobby', {
-                    name:'TestLobby',
-                    game:'TETRIS'
+                    name: 'TestLobby',
+                    game: 'TETRIS'
                 });
 
                 self.startGame();
@@ -24,6 +24,9 @@ function ($, Socket, StateMachine, GameTetris) {
         },
 
         startGame: function() {
+            var self = this;
+            console.dir({wut: self});
+
             self.socket.send('start_game', {});
         },
 
