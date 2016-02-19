@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 
-class BaseLobby:
+class BaseLobby(object):
     id = None
     clients = []
     game = None
@@ -14,11 +14,8 @@ class BaseLobby:
         self.factory = factory
 
 
-class BaseGame:
+class BaseGame(object):
     factory = []
-
-    def __init__(self):
-        pass
 
     def set_factory(self):
         pass
