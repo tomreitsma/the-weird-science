@@ -7,13 +7,12 @@ class Lobby(BaseLobby):
 
     def __init__(self, game):
         self.game = game(self)
+        self.clients = []
 
         BaseLobby.__init__(self)
 
     def add_client(self, client):
         self.clients.append(client)
-
-        client.lobby = self
 
         print "Added client to lobby %s" % (self.id, )
 

@@ -34,6 +34,9 @@ class TwsServerFactory(WebSocketServerFactory):
         self.clients = []
         self.lobbies = {}
 
+    """ Client registration
+    """
+
     def register(self, client):
         if client not in self.clients:
             print("registered client {}".format(client.peer))
@@ -42,9 +45,15 @@ class TwsServerFactory(WebSocketServerFactory):
     def unregister(self, client):
         if client in self.clients:
             print("unregistered client {}".format(client.peer))
+
+            if client.lobby:
+                client.lobby.clients.remove(client)
+                client.lobby = None
+
             self.clients.remove(client)
 
-    """ Message encode/decode functionality """
+    """ Message encode/decode functionality
+    """
 
     def encode_message(self, command, data):
         return '|'.join([command, json.dumps(data)])
@@ -55,16 +64,19 @@ class TwsServerFactory(WebSocketServerFactory):
 
         return command, data
 
-    """ Basic game commands """
+    """ Basic game commands
+    """
 
     def create_lobby(self, client, data):
 
-        if not data.has_key('game') and data['game'] in self.AVAILABLE_GAMES:
+        if not 'game' in data and data['game'] in self.AVAILABLE_GAMES:
             raise Exception('Game unavailable')
 
         lobby = Lobby(self.AVAILABLE_GAMES[data['game']])
         lobby.set_factory(self)
         lobby.add_client(client)
+
+        client.lobby = lobby
 
         self.send_command(client, 'lobby_created', {
             'id': lobby.id
@@ -87,18 +99,21 @@ class TwsServerFactory(WebSocketServerFactory):
 
         pprint(data)
 
+    """ Communication methods
+    """
+
     def send_command(self, client, command, data):
         msg = self.encode_message(command, data)
 
-        print "Sending command "
-        print msg
+        print "Sending command %s " % command
+
+        pprint(client.lobby.id)
 
         client.sendMessage(
             msg
         )
 
     def command(self, client, msg):
-
         command, data = self.decode_message(msg)
 
         commands = {
@@ -114,4 +129,7 @@ class TwsServerFactory(WebSocketServerFactory):
             print "Executing command %s" % (command,)
             commands[command](client, data)
         else:
-            print "Unrecognized command %s" % (command,)
+            print "Passing command %s through to game instance" % (command,)
+
+            if client.lobby.game:
+                client.lobby.game.handle_command(client, command, data)

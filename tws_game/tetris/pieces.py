@@ -7,6 +7,18 @@ class BasePiece(object):
 
     square_size = 3
 
+    def __init__(self):
+        self.offset_left = 0
+        self.offset_top = 0
+
+    def _get_next_rotation(self):
+        rotation = self.rotation + 1
+
+        if rotation >= len(self.rotations):
+            rotation = 0
+
+        return rotation
+
     def rotate(self):
         self.rotation += 1
 
@@ -15,6 +27,22 @@ class BasePiece(object):
 
     def current_rotation(self):
         return self.rotations[self.rotation]
+
+    def next_rotation(self):
+        return self.rotations[self._get_next_rotation()]
+
+    def get_active_coordinates(self):
+        active_coordinates = []
+        current_rotation = self.current_rotation()
+
+        for y, y_data in enumerate(current_rotation):
+            for x, x_data in enumerate(current_rotation[y]):
+                if current_rotation[y][x] == 1:
+                    active_coordinates.append(
+                        (self.offset_left + x, self.offset_top + y, )
+                    )
+
+        return active_coordinates
 
 
 class PieceI(BasePiece):
@@ -60,18 +88,79 @@ class PieceT(BasePiece):
 class PieceO(BasePiece):
     color = 'purple'
 
+    rotations = (
+        ((0, 1, 1, 0,),
+         (0, 1, 1, 0,), ),
+    )
+
 
 class PieceS(BasePiece):
     color = 'green'
+
+    rotations = (
+        ((0, 0, 0,),
+         (0, 1, 1,),
+         (1, 1, 0,), ),
+
+        ((1, 0, 0,),
+         (1, 1, 0,),
+         (0, 1, 0,), ),
+    )
 
 
 class PieceZ(BasePiece):
     color = 'red'
 
+    rotations = (
+        ((0, 0, 0, ),
+         (1, 1, 0, ),
+         (0, 1, 1, ), ),
+
+        ((0, 0, 1, ),
+         (0, 1, 1, ),
+         (0, 1, 0, ), )
+    )
+
 
 class PieceJ(BasePiece):
     color = 'blue'
 
+    rotations = (
+        ((0, 0, 0, ),
+         (1, 1, 1, ),
+         (0, 0, 1, ), ),
+
+        ((0, 1, 0, ),
+         (0, 1, 0, ),
+         (1, 1, 0, ), ),
+
+        ((0, 0, 0, ),
+         (1, 0, 0, ),
+         (1, 1, 1, ), ),
+
+        ((0, 1, 1, ),
+         (0, 1, 0, ),
+         (0, 1, 0, ), )
+    )
+
 
 class PieceL(BasePiece):
     color = 'orange'
+
+    rotations = (
+        ((0, 0, 0, ),
+         (1, 1, 1, ),
+         (1, 0, 0, ), ),
+
+        ((1, 1, 0, ),
+         (0, 1, 0, ),
+         (0, 1, 0, ), ),
+
+        ((0, 0, 0, ),
+         (0, 0, 1, ),
+         (1, 1, 1, ), ),
+
+        ((0, 1, 0, ),
+         (0, 1, 0, ),
+         (0, 1, 1, ), )
+    )

@@ -1,9 +1,7 @@
-define(['vendor/jquery'], function (_$) {
+define(['vendor/jquery', 'lib/keyboardhandler'], function (_$, KeyboardHandler) {
 
     CANVAS_WIDTH = 500;
-    CANVAS_HEIGHT = 500;
-
-    GRID_SIZE = 10
+    CANVAS_HEIGHT = 600;
 
     var canvas = document.createElement('canvas');
 
@@ -57,14 +55,31 @@ define(['vendor/jquery'], function (_$) {
             var self = this;
 
             self.socket = options.socket || null;
-            console.dir({got_socket: self.socket});
-
             self.socket.listen('update_board', self.drawBoard);
+
+            /**$("<audio></audio>").attr({
+                'src':'/audio/tetris.ogg',
+                'volume':0.4,
+                'autoplay':'autoplay'
+            }).appendTo("body");*/
+
+            self.setupKeyBinds();
+        },
+
+        setupKeyBinds: function() {
+            var self = this;
+
+            KeyboardHandler.addListener([
+                KeyboardHandler.ARROW_LEFT,
+                KeyboardHandler.ARROW_RIGHT,
+                KeyboardHandler.ARROW_UP,
+                KeyboardHandler.ARROW_DOWN
+            ], function(event) {
+                self.socket.send('keypress', {key: event.keyCode});
+            });
         },
 
         drawBoard: function(data) {
-            console.dir({got_in_draw_board: data});
-
             drawBoard(data);
         }
     };

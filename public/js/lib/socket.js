@@ -66,7 +66,6 @@ define(function () {
 
             if(self._listeners[result.command]) {
                 for(var i=0; i<self._listeners[result.command].length; i++) {
-                    console.dir({calling:true});
                     self._listeners[result.command][i](result.data);
                 }
             }
@@ -91,8 +90,6 @@ define(function () {
         send: function(command, data) {
             var self = this,
                 message = [command, JSON.stringify(data)].join('|')
-
-            console.dir({sending_message: message});
 
             self._ws.send(message);
         }

@@ -17,5 +17,10 @@ class BaseLobby(object):
 class BaseGame(object):
     factory = []
 
-    def set_factory(self):
-        pass
+    commands = {
+
+    }
+
+    def handle_command(self, client, command, data):
+        if command in self.commands:
+            self.commands[command](client, data)
