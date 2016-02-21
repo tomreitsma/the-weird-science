@@ -12,7 +12,7 @@ define(['vendor/jquery', 'lib/keyboardhandler'], function (_$, KeyboardHandler) 
 
     $('body').append(canvas);
 
-    var grid_size = [10, 22], // w/h
+    var grid_size = [15, 22], // w/h
         grid_cell_height = 25,
         grid_cell_width = 25,
         grid_padding = 10,
@@ -55,15 +55,26 @@ define(['vendor/jquery', 'lib/keyboardhandler'], function (_$, KeyboardHandler) 
             var self = this;
 
             self.socket = options.socket || null;
+
+            self.socket.clearListeners('update_board');
             self.socket.listen('update_board', self.drawBoard);
 
-            /**$("<audio></audio>").attr({
+            //self.setupAudio();
+            self.setupKeyBinds();
+        },
+
+        setupAudio: function() {
+            var self = this;
+
+            var audio_element = $("<audio></audio>").attr({
                 'src':'/audio/tetris.ogg',
                 'volume':0.4,
-                'autoplay':'autoplay'
-            }).appendTo("body");*/
+                'autoplay':'false'
+            });
 
-            self.setupKeyBinds();
+            self.audio_element = audio_element;
+
+            $(audio_element).appendTo("body");
         },
 
         setupKeyBinds: function() {
@@ -77,6 +88,12 @@ define(['vendor/jquery', 'lib/keyboardhandler'], function (_$, KeyboardHandler) 
             ], function(event) {
                 self.socket.send('keypress', {key: event.keyCode});
             });
+
+            KeyboardHandler.addListener([
+                KeyboardHandler.KEY_RETURN
+            ], function() {
+                self.audio_element.prop("muted",!$(self.audio_element).prop("muted"));
+            })
         },
 
         drawBoard: function(data) {

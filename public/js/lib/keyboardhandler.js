@@ -24,7 +24,7 @@ define(['vendor/jquery'], function(_$) {
 
             console.log('trying something');
 
-            $(document).on('keydown', function(event) {
+            $(document.body).on('keydown', function(event) {
                 console.log('got keydown event');
                 self.onKeyPress(event);
             });
@@ -37,8 +37,6 @@ define(['vendor/jquery'], function(_$) {
                 keys = [key];
             }
 
-            console.dir({adding_listeners: keys});
-
             for(var i=0; i<keys.length; i++) {
                 var key = keys[i];
 
@@ -46,7 +44,7 @@ define(['vendor/jquery'], function(_$) {
                     self.listeners[key] = [];
                 }
 
-                this.listeners[key].push(func);
+                self.listeners[key].push(func);
             }
         },
 

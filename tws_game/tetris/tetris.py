@@ -33,7 +33,13 @@ class Tetris(BaseGame):
     GAME_STATE = None
     VALID_GAME_PIECES = (
         PieceI,
-        PieceT,
+        #"""PieceT,
+        #PieceO,
+        #PieceL,
+        #PieceS,
+        #PieceJ,
+        #PieceT,
+        #PieceZ,"""
     )
 
     state_data = {}
@@ -41,7 +47,7 @@ class Tetris(BaseGame):
     """ Game config
     """
     max_players = 2
-    field_size = (10, 22, )  # w/h
+    field_size = (15, 22, )  # w/h
 
     def __init__(self, lobby):
         BaseGame.__init__(self)
@@ -62,6 +68,9 @@ class Tetris(BaseGame):
             'keypress': self.handle_keypress
         }
 
+    def add_client(self, client):
+        client.current_piece = None
+
     def heartbeat(self):
         for client in self.lobby.clients:
             self.lobby.factory.send_command(
@@ -74,16 +83,16 @@ class Tetris(BaseGame):
         # reactor.callLater(1, self.heartbeat)
 
     def handle_keypress(self, client, data):
-        print "Handling keypress"
-
         if not self._handle_falling_piece(client):
             self._broadcast_board()
             return False
 
         if data['key'] == KEY_ARROW_LEFT:
-            client.current_piece.offset_left -= 1
+            if (client.current_piece.get_left_most_coordinate() + client.current_piece.offset_left) > 0:
+                client.current_piece.offset_left -= 1
         elif data['key'] == KEY_ARROW_RIGHT:
-            client.current_piece.offset_left += 1
+            if (client.current_piece.offset_left + client.current_piece.get_right_most_coordinate()) < self.field_size[0] - 1:
+                client.current_piece.offset_left += 1
         elif data['key'] == KEY_ARROW_UP:
             client.current_piece.rotate()
         elif data['key'] == KEY_ARROW_DOWN:
@@ -93,20 +102,20 @@ class Tetris(BaseGame):
         self._broadcast_board()
 
     def _reset_fallen_piece_data(self):
-        self.state_data['fallen_piece_data'] = []
+        self.fallen_pieces = []
 
         for y in range(self.field_size[1]):
-            self.state_data['fallen_piece_data'].append([])
+            self.fallen_pieces.append([])
             for x in range(self.field_size[0]):
-                self.state_data['fallen_piece_data'][y].append(0)
+                self.fallen_pieces[y].append(0)
 
     def _reset_playfield(self):
-        self.state_data['playfield'] = []
+        self.playfield = []
 
         for y in range(self.field_size[1]):
-            self.state_data['playfield'].append([])
+            self.playfield.append([])
             for x in range(self.field_size[0]):
-                self.state_data['playfield'][y].append(0)
+                self.playfield[y].append(0)
 
     def _get_random_piece(self):
         piece = random.choice(self.VALID_GAME_PIECES)
@@ -128,12 +137,10 @@ class Tetris(BaseGame):
                         new_x = piece.offset_left + x
                         new_y = piece.offset_top + y
 
-                        print "New xy: %d, %d" % (new_x, new_y,)
-
-                        self.state_data['playfield'][new_y][new_x] = 1
+                        self.playfield[new_y][new_x] = 1
 
     def _render_board(self):
-        pprint(self._get_complete_field())
+        # pprint(self._get_complete_field())
         pass
 
     def _get_complete_field(self):
@@ -142,8 +149,8 @@ class Tetris(BaseGame):
         for y in range(self.field_size[1]):
             complete.append([])
             for x in range(self.field_size[0]):
-                if self.state_data['playfield'][y][x] == 1 or \
-                        self.state_data['fallen_piece_data'][y][x] == 1:
+                if self.playfield[y][x] == 1 or \
+                        self.fallen_pieces[y][x] == 1:
                     complete[y].append(1)
                 else:
                     complete[y].append(0)
@@ -151,8 +158,6 @@ class Tetris(BaseGame):
         return complete
 
     def _broadcast_board(self):
-        print self.lobby.id
-        print self.lobby.clients
         for client in self.lobby.clients:
             self.lobby.factory.send_command(
                 client,
@@ -160,11 +165,27 @@ class Tetris(BaseGame):
                 self._get_complete_field()
             )
 
+    def _collapse_rows(self):
+        y = self.field_size[1] - 1
+
+        while y >= 0:
+            if 0 not in self.fallen_pieces[y]:
+                for y_up in range(y, 0, -1):
+                    for x in range(self.field_size[0]):
+                        self.fallen_pieces[y_up][x] = \
+                        self.fallen_pieces[y_up-1][x]
+            else:
+                y -= 1
+
+        return True
+
     def _add_falling_piece_to_fallen_pieces(self, client):
         active_coordinates = client.current_piece.get_active_coordinates()
 
         for ac in active_coordinates:
-            self.state_data['fallen_piece_data'][ac[1]][ac[0]] = 1
+            self.fallen_pieces[ac[1]][ac[0]] = 1
+
+        self._collapse_rows()
 
         client.current_piece = self._get_random_piece()
 
@@ -180,7 +201,7 @@ class Tetris(BaseGame):
 
             """ Check if the piece hit an already fallen piece
             """
-            if self.state_data['fallen_piece_data'][ac[1]+1][ac[0]] == 1:
+            if self.fallen_pieces[ac[1]+1][ac[0]] == 1:
                 self._add_falling_piece_to_fallen_pieces(client)
                 return False
 
@@ -202,11 +223,11 @@ class Tetris(BaseGame):
         reactor.callLater(1, self._gameplay_tick)
 
     def start(self, client):
+        if self.GAME_STATE >= GAME_STATE_STARTED:
+            return False
+
         self._reset_playfield()
         self.GAME_STATE = GAME_STATE_STARTED
-
-        for client in self.lobby.clients:
-            client.current_piece = None
 
         reactor.callLater(0, self._gameplay_tick)
 

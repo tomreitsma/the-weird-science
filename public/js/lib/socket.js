@@ -8,9 +8,9 @@ define(function () {
         _listeners: {},
 
         _on: {
-            'open': function(){ console.warn("on('open', func(){}) not defined"); },
-            'close': function(){ console.warn("on('close', func(){}) not defined"); },
-            'message': function(){ console.warn("on('message', func(){}) not defined"); },
+            'open': function(){  },
+            'close': function(){  },
+            'message': function(){  },
         },
 
         init: function(url) {
@@ -71,6 +71,11 @@ define(function () {
             }
 
             self._on['message'](result);
+        },
+
+        clearListeners: function(command) {
+            var self = this;
+            self._listeners[command] = [];
         },
 
         listen: function(command, func) {

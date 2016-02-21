@@ -44,6 +44,26 @@ class BasePiece(object):
 
         return active_coordinates
 
+    def get_right_most_coordinate(self):
+        highest = 0
+
+        for y, y_data in enumerate(self.current_rotation()):
+            for x, value in enumerate(y_data):
+                if value == 1 and x > highest:
+                    highest = x
+
+        return highest
+
+    def get_left_most_coordinate(self):
+        lowest = 999
+
+        for y, y_data in enumerate(self.current_rotation()):
+            for x, value in enumerate(y_data):
+                if value == 1 and x < lowest:
+                    lowest = x
+
+        return lowest
+
 
 class PieceI(BasePiece):
     color = 'cyan'
@@ -88,9 +108,13 @@ class PieceT(BasePiece):
 class PieceO(BasePiece):
     color = 'purple'
 
+    square_size = 4
+
     rotations = (
-        ((0, 1, 1, 0,),
-         (0, 1, 1, 0,), ),
+        ((0, 0, 0, 0,),
+         (0, 1, 1, 0,),
+         (0, 1, 1, 0,),
+         (0, 0, 0, 0,),),
     )
 
 

@@ -14,8 +14,8 @@ class ClientConnection(WebSocketServerProtocol):
     def onOpen(self):
         self.factory.register(self)
 
-    def onMessage(self, payload, isBinary):
-        if not isBinary:
+    def onMessage(self, payload, is_binary):
+        if not is_binary:
             self.factory.command(self, payload)
 
     def connectionLost(self, reason):
@@ -33,22 +33,23 @@ class TwsServerFactory(WebSocketServerFactory):
         WebSocketServerFactory.__init__(self, url)
         self.clients = []
         self.lobbies = {}
+        self._lobby_id_counter = 0
 
     """ Client registration
     """
 
     def register(self, client):
         if client not in self.clients:
-            print("registered client {}".format(client.peer))
+            print "registered client {}".format(client.peer)
+            client.lobby = None
             self.clients.append(client)
 
     def unregister(self, client):
         if client in self.clients:
-            print("unregistered client {}".format(client.peer))
+            print "unregistered client {}".format(client.peer)
 
             if client.lobby:
-                client.lobby.clients.remove(client)
-                client.lobby = None
+                client.lobby.remove_client(client)
 
             self.clients.remove(client)
 
@@ -74,19 +75,39 @@ class TwsServerFactory(WebSocketServerFactory):
 
         lobby = Lobby(self.AVAILABLE_GAMES[data['game']])
         lobby.set_factory(self)
-        lobby.add_client(client)
 
-        client.lobby = lobby
+        self._lobby_id_counter += 1
+        lobby.name = 'Lobby %s' % self._lobby_id_counter
 
-        self.send_command(client, 'lobby_created', {
+        self.lobbies[lobby.id] = lobby
+
+        self.send_command(client, 'create_lobby', {
             'id': lobby.id
         })
 
     def join_lobby(self, client, data):
-        pass
+        if client.lobby:
+            client.lobby.remove_client(client)
+
+        if data['id'] in self.lobbies and client not in self.lobbies[data['id']].clients:
+            self.lobbies[data['id']].add_client(client)
+
+        self.send_command(client, 'join_lobby', True)
 
     def list_lobbies(self, client, data):
-        pass
+        lobbies = []
+
+        for id in self.lobbies:
+            lobby = self.lobbies[id]
+            lobbies.append({
+                'id': lobby.id,
+                'name': lobby.name,
+                'clients': len(lobby.clients)
+            })
+
+        self.send_command(client, 'list_lobbies', lobbies)
+
+        return lobbies
 
     def leave_lobby(self, client, data):
         pass
@@ -104,10 +125,6 @@ class TwsServerFactory(WebSocketServerFactory):
 
     def send_command(self, client, command, data):
         msg = self.encode_message(command, data)
-
-        print "Sending command %s " % command
-
-        pprint(client.lobby.id)
 
         client.sendMessage(
             msg
@@ -129,7 +146,5 @@ class TwsServerFactory(WebSocketServerFactory):
             print "Executing command %s" % (command,)
             commands[command](client, data)
         else:
-            print "Passing command %s through to game instance" % (command,)
-
             if client.lobby.game:
                 client.lobby.game.handle_command(client, command, data)
