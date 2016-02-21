@@ -18,4 +18,5 @@ You should now be able to access The Weird Tetris on http://localhost:8080
 If you wish to gain access from a host other than localhost edit the following:
 
 Change `WEBSOCKET_HOST` in ./public/js/config.js to your network ip
+
 Change `WEBSOCKET_HOST` in ./settings.py to your network ip
