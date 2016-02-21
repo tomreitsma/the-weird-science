@@ -20,3 +20,8 @@ If you wish to gain access from a host other than localhost edit the following:
 Change `WEBSOCKET_HOST` in ./public/js/config.js to your network ip
 
 Change `WEBSOCKET_HOST` in ./settings.py to your network ip
+
+### Controls
+
+Arrow keys left, right and down to move the piece. Arrow key up to rotate the piece. 
+Press enter to disable the music.
