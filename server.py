@@ -8,9 +8,8 @@ from twisted.web.server import Site
 from twisted.web.static import File
 
 from autobahn.twisted.websocket import listenWS
-
 from tws_game.server import TwsServerFactory, ClientConnection
-
+from settings import *
 
 if __name__ == '__main__':
 
@@ -18,7 +17,7 @@ if __name__ == '__main__':
 
     ServerFactory = TwsServerFactory
 
-    factory = ServerFactory(u"ws://127.0.0.1:9000")
+    factory = ServerFactory(u"ws://%s:%s" % (WEBSOCKET_HOST, WEBSOCKET_PORT, ))
     factory.protocol = ClientConnection
     listenWS(factory)
 

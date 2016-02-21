@@ -33,13 +33,13 @@ class Tetris(BaseGame):
     GAME_STATE = None
     VALID_GAME_PIECES = (
         PieceI,
-        #"""PieceT,
-        #PieceO,
-        #PieceL,
-        #PieceS,
-        #PieceJ,
-        #PieceT,
-        #PieceZ,"""
+        PieceT,
+        PieceO,
+        PieceL,
+        PieceS,
+        PieceJ,
+        PieceT,
+        PieceZ,
     )
 
     state_data = {}

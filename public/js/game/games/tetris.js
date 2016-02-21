@@ -1,18 +1,17 @@
 define(['vendor/jquery', 'lib/keyboardhandler'], function (_$, KeyboardHandler) {
 
-    CANVAS_WIDTH = 500;
-    CANVAS_HEIGHT = 600;
+    var config = require('config');
 
     var canvas = document.createElement('canvas');
 
     $(canvas).attr('id', 'tetris_canvas')
-        .attr('width', CANVAS_WIDTH)
-        .attr('height', CANVAS_HEIGHT)
+        .attr('width', config.CANVAS_WIDTH)
+        .attr('height', config.CANVAS_HEIGHT)
         .text('unsupported browser');
 
     $('body').append(canvas);
 
-    var grid_size = [15, 22], // w/h
+    var grid_size = config.GRID_SIZE, // w/h
         grid_cell_height = 25,
         grid_cell_width = 25,
         grid_padding = 10,
@@ -59,7 +58,7 @@ define(['vendor/jquery', 'lib/keyboardhandler'], function (_$, KeyboardHandler) 
             self.socket.clearListeners('update_board');
             self.socket.listen('update_board', self.drawBoard);
 
-            //self.setupAudio();
+            self.setupAudio();
             self.setupKeyBinds();
         },
 

@@ -7,12 +7,11 @@ define(function (require) {
 
     var backend_socket = null;
 
-    WEBSOCKET_HOST = 'localhost';
-    WEBSOCKET_PORT = 9000;
+    var config = require('config');
 
     function connectToBackend() {
         return new Promise(function(resolve, reject) {
-            var socket = new Socket('ws://'+WEBSOCKET_HOST+':'+WEBSOCKET_PORT+'/');
+            var socket = new Socket('ws://'+config.WEBSOCKET_HOST+':'+config.WEBSOCKET_PORT+'/');
 
             socket.on('open', function() {
                 socket.send('set_nickname', {name: 'Tom'});
