@@ -16,7 +16,7 @@ incremental==17.5.0       # via twisted
 pip-tools==1.6
 pyhamcrest==1.9.0         # via twisted
 six==1.10.0               # via autobahn, automat, pip-tools, pyhamcrest, txaio
-twisted==19.2.1
+twisted==19.7.0
 txaio==2.2.1              # via autobahn
 zope.interface==4.6.0     # via twisted
 
