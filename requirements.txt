@@ -4,20 +4,39 @@
 #
 #    pip-compile requirements.in
 #
-attrs==19.1.0             # via automat, twisted
+attrs==23.1.0
+    # via
+    #   automat
+    #   twisted
 autobahn==0.12.1
-automat==0.7.0            # via twisted
-click==6.2                # via pip-tools
-constantly==15.1.0        # via twisted
-first==2.0.1              # via pip-tools
-hyperlink==19.0.0         # via twisted
-idna==2.8                 # via hyperlink
-incremental==17.5.0       # via twisted
+    # via -r requirements.in
+automat==22.10.0
+    # via twisted
+click==6.2
+    # via pip-tools
+constantly==15.1.0
+    # via twisted
+first==2.0.1
+    # via pip-tools
+hyperlink==19.0.0
+    # via twisted
+idna==2.8
+    # via hyperlink
+incremental==22.10.0
+    # via twisted
 pip-tools==1.6
-pyhamcrest==1.9.0         # via twisted
-six==1.10.0               # via autobahn, automat, pip-tools, pyhamcrest, txaio
-twisted==19.7.0
-txaio==2.2.1              # via autobahn
-zope.interface==4.6.0     # via twisted
-
-#
+    # via -r requirements.in
+six==1.10.0
+    # via
+    #   autobahn
+    #   automat
+    #   pip-tools
+    #   txaio
+twisted==23.8.0
+    # via -r requirements.in
+txaio==2.2.1
+    # via autobahn
+typing-extensions==4.8.0
+    # via twisted
+zope-interface==6.1
+    # via twisted
